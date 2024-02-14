@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
+using bynrcargo.Api.Contracts.Request;
+using bynrcargo.Api.Contracts.Response;
 
 namespace bynrcargo.Api.Entities
 {
@@ -16,52 +18,69 @@ namespace bynrcargo.Api.Entities
     public class DeliveryController : ControllerBase
     {
         static List<Delivery> _delivery = new List<Delivery> { };
+       
 
         [HttpGet("List")]
-        public IActionResult GetAll()
+        public IActionResult GetList(Delivery delivery)
         {
             if (_delivery.Count == 0)
             {
                 return NotFound("Uygun Siparis Bulunamadı");
             }
-            return Ok(_delivery);
+            GetStatusResponse response = new GetStatusResponse
+            {
+                DeliveryCode = delivery.DeliveryCode,
+                Status = delivery.Status,
+                StatusDescription = delivery.Status.ToString()
+
+            };
+            return Ok(response);
         }
         [HttpPost("Add")]
-        public IActionResult Post(Delivery delivery)
+        public IActionResult Add(AddDeliveryRequest request)
         {
-            if (_delivery.Any(d => d.DeliveryCode == delivery.DeliveryCode))
+            if (_delivery.Any(d => d.DeliveryCode == request.DeliveryCode))
             {
 
                 return Conflict();
             }
-            else
+            Delivery delivery = new Delivery
             {
-                _delivery.Add(delivery);
-                return Ok(delivery);
-            }
+                DeliveryCode = request.DeliveryCode,
+                ReceiverAddress = request.ReceiverAdress,
+                SenderAddress = request.SenderAdress
+
+            };
+            _delivery.Add(delivery);
+            return Ok();
         }
-        [HttpGet("Status/{DeliveryId}")]
-        public IActionResult GetStatus(int DeliveryId)
+        [HttpGet("Status/{deliveryCode}")]
+        public IActionResult GetStatus(string deliveryCode)
         {
-            var delivery = _delivery.FirstOrDefault(d => d.DeliveryCode == DeliveryId);
+            var delivery = _delivery.FirstOrDefault(d => d.DeliveryCode == deliveryCode);
             if (delivery == null)
             {
                 return NotFound();
             }
-            DeliveryInfo deliveryInfo = new DeliveryInfo { DeliveryId = delivery.DeliveryCode, DeliveryStatus = Delivery.Status.Created.ToString() };
-       
-            return Ok(deliveryInfo);
-        }
-        [HttpDelete("Cancel/{DeliveryId}")]
-
-        public IActionResult Delete(int DeliveryId)
-        {
-            var cancel = _delivery.FirstOrDefault(d => d.DeliveryCode == DeliveryId);
-            if (!_delivery.Contains(cancel))
+            GetStatusResponse response = new GetStatusResponse
             {
-                return NotFound("Bu Id'ye Ait Bir Siparis Bulunamadı.");
+                DeliveryCode = delivery.DeliveryCode,
+                Status =delivery.Status,
+                StatusDescription = delivery.Status.ToString()
+
+            };
+            return Ok(response);
+        }
+        [HttpDelete("Cancel/{deliveryCode}")]
+
+        public IActionResult Cancel(string deliveryCode)
+        {
+            var delivery = _delivery.FirstOrDefault(d => d.DeliveryCode == deliveryCode);
+            if (delivery == null)
+            {
+                return NotFound("Boyle bir teslimat mevcut değil!");
             }
-            _delivery.Remove(cancel);
+            delivery.SetStatusCanceled();
             return Accepted();
 
         }

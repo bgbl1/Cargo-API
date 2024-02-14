@@ -5,15 +5,31 @@ namespace bynrcargo.Api.Entities
     public class Delivery
 
     {
-        public int DeliveryCode { get; set; }
+        public Guid DeliveryId { get; set; }
+        public string DeliveryCode { get; init; }
         public string ReceiverAddress { get; set; }
 
         public string SenderAddress { get; set; }
         
+        public DeliveryStatus Status { get; private set; }
+        
+        public Delivery() {
+            Status = DeliveryStatus.Created;
+        }
 
-        public enum Status { Created, InTransit, Delivered, NotDelivered }
+        public void SetStatusCanceled() { 
+        
+        if(Status != DeliveryStatus.Created)
+            {
+                throw new Exception("Mevcut statude bu delivery iptal edilemez!");
 
             }
-    
+            Status = DeliveryStatus.Canceled;
+        
+        }
 
+            }
+
+    
 }
+
