@@ -1,7 +1,4 @@
 ﻿
-
-
-
 using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +6,12 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using bynrcargo.Api.Contracts.Request;
-using bynrcargo.Api.Contracts.Response;
+using bynrcargo.Api.Contracts.Response; 
+using Dapper;
+using System.Data.SqlClient;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Data;
 
 namespace bynrcargo.Api.Entities
 {
@@ -17,72 +19,87 @@ namespace bynrcargo.Api.Entities
     [Route("[controller]")]
     public class DeliveryController : ControllerBase
     {
-        static List<Delivery> _delivery = new List<Delivery> { };
-       
-
-        [HttpGet("List")]
-        public IActionResult GetList(Delivery delivery)
+        private readonly string _connectionString;
+        public DeliveryController(string connectionString)
         {
-            if (_delivery.Count == 0)
-            {
-                return NotFound("Uygun Siparis Bulunamadı");
-            }
-            GetStatusResponse response = new GetStatusResponse
-            {
-                DeliveryCode = delivery.DeliveryCode,
-                Status = delivery.Status,
-                StatusDescription = delivery.Status.ToString()
+            _connectionString = connectionString;
+        }
 
-            };
-            return Ok(response);
+        
+        [HttpGet("List")]
+        public async Task<IActionResult> GetList()
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var deliveries = await connection.QueryAsync<Delivery>("SELECT * FROM Deliveries");
+                var deliveryList = deliveries.ToList();
+
+                if (deliveryList.Count == 0)
+                {
+                    return NotFound("Uygun Siparis Bulunamadı");
+                }
+                return Ok(deliveryList);
+            }
         }
         [HttpPost("Add")]
-        public IActionResult Add(AddDeliveryRequest request)
+        public async Task<IActionResult> Add(AddDeliveryRequest request)
         {
-            if (_delivery.Any(d => d.DeliveryCode == request.DeliveryCode))
+            using (var connection = new SqlConnection(_connectionString))
             {
+                var existingDelivery = await connection.QueryFirstOrDefaultAsync<Delivery>("SELECT * FROM Deliveries WHERE DeliveryCode = @DeliveryCode", new { request.DeliveryCode });
+                if (existingDelivery != null)
+                    
+                {
 
-                return Conflict();
+                    return Conflict();
+                }
+                Delivery delivery = new Delivery
+                {
+                    DeliveryCode = request.DeliveryCode,
+                    ReceiverAddress = request.ReceiverAdress,
+                    SenderAddress = request.SenderAdress
+
+                };
+
+                await connection.ExecuteAsync("INSERT INTO Deliveries (DeliveryCode, ReceiverAddress, SenderAddress, Status) VALUES (@DeliveryCode, @ReceiverAddress, @SenderAddress, @Status)", delivery);
+                return Ok();
             }
-            Delivery delivery = new Delivery
-            {
-                DeliveryCode = request.DeliveryCode,
-                ReceiverAddress = request.ReceiverAdress,
-                SenderAddress = request.SenderAdress
-
-            };
-            _delivery.Add(delivery);
-            return Ok();
         }
         [HttpGet("Status/{deliveryCode}")]
-        public IActionResult GetStatus(string deliveryCode)
+        public async Task<IActionResult> GetStatus(string deliveryCode)
         {
-            var delivery = _delivery.FirstOrDefault(d => d.DeliveryCode == deliveryCode);
-            if (delivery == null)
+            using (var connection = new SqlConnection(_connectionString))
             {
-                return NotFound();
-            }
-            GetStatusResponse response = new GetStatusResponse
-            {
-                DeliveryCode = delivery.DeliveryCode,
-                Status =delivery.Status,
-                StatusDescription = delivery.Status.ToString()
+                var delivery = await connection.QueryFirstOrDefaultAsync<Delivery>("SELECT * FROM Deliveries WHERE DeliveryCode = @DeliveryCode", new { DeliveryCode = deliveryCode });
+                if (delivery == null)
+                {
+                    return NotFound();
+                }
+                GetStatusResponse response = new GetStatusResponse
+                {
+                    DeliveryCode = delivery.DeliveryCode,
+                    Status = delivery.Status,
+                    StatusDescription = delivery.Status.ToString()
 
-            };
-            return Ok(response);
+                };
+                return Ok(response);
+            }
         }
         [HttpDelete("Cancel/{deliveryCode}")]
 
-        public IActionResult Cancel(string deliveryCode)
+        public async Task<IActionResult> Cancel(string deliveryCode)
         {
-            var delivery = _delivery.FirstOrDefault(d => d.DeliveryCode == deliveryCode);
-            if (delivery == null)
+            using (var connection = new SqlConnection(_connectionString))
             {
-                return NotFound("Boyle bir teslimat mevcut değil!");
+                var delivery = await connection.QueryFirstOrDefaultAsync<Delivery>("SELECT * FROM Deliveries WHERE DeliveryCode = @DeliveryCode", new { DeliveryCode = deliveryCode });
+                if (delivery == null)
+                {
+                    return NotFound("Boyle bir teslimat mevcut değil!");
+                }
+                delivery.SetStatusCanceled();
+                return Accepted();
             }
-            delivery.SetStatusCanceled();
-            return Accepted();
-
         }
+    
     }
 }
