@@ -11,7 +11,7 @@ namespace bynrcargo.Api.Entities
 
         public string SenderAddress { get; set; }
         
-        public DeliveryStatus Status { get; private set; }
+        public DeliveryStatus Status { get;  set; }
         
         public Delivery() {
             Status = DeliveryStatus.Created;

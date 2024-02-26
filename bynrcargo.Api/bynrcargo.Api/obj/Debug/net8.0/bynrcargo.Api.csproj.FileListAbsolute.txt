@@ -38,3 +38,10 @@ C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-de
 C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\runtimes\win-x86\native\sni.dll
 C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.runner.visualstudio.testadapter.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.runner.reporters.netcoreapp10.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.runner.utility.netcoreapp10.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.abstractions.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.assert.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.core.dll
+C:\Users\bedirhan.gobel\OneDrive - Boyner Holding A.S\Documents\GitHub\webapi-deneme\bynrcargo.Api\bynrcargo.Api\bin\Debug\net8.0\xunit.execution.dotnet.dll
